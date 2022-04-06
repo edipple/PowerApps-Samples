@@ -64,10 +64,10 @@ namespace PowerApps.Samples.LoginUX
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             /*
-				This is the setup process for the login control, 
-				The login control uses a class called CrmConnectionManager to manage the interaction with CRM, this class and also be queried as later points for information about the current connection. 
-				In this case, the login control is referred to as CrmLoginCtrl
-			 */
+        This is the setup process for the login control, 
+        The login control uses a class called CrmConnectionManager to manage the interaction with CRM, this class and also be queried as later points for information about the current connection. 
+        In this case, the login control is referred to as CrmLoginCtrl
+       */
 
             // Set off flag. 
             bIsConnectedComplete = false;
