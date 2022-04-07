@@ -94,11 +94,11 @@ namespace PowerApps.Samples
                     Console.ReadLine();
                 }
              }
-			catch (Exception)
-			{
+      catch (Exception)
+      {
 
-				throw;
-			}
+        throw;
+      }
         }
     }
 }
