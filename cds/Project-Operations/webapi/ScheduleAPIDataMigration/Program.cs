@@ -45,9 +45,10 @@ namespace PowerApps.Samples {
       // This is going to be just a collection we build in memory.  You will be retrieving source data as needed.
       List<ScheduleAPIDataMigrationHelpers.SourceProject> sourceProjects = ScheduleAPIDataMigrationHelpers.GetSourceProjects(numberOfProjects, numberOfTasksPerProject, numberOfTeamMembers, useParentTasks, useDependency);
 
-      // No load up the existing projects
-      ConcurrentBag<ScheduleAPIDataMigrationHelpers.ExistingProject> _existingProjects = new ConcurrentBag<ScheduleAPIDataMigrationHelpers.ExistingProject>();
-      
+      using (CDSWebApiService svc = new CDSWebApiService(serviceConfig)) {
+        // Now load up the existing projects
+        ConcurrentBag<ScheduleAPIDataMigrationHelpers.ExistingProject> _existingProjects = ScheduleAPIDataMigrationHelpers.GetExistingProjects(svc, sourceProjects);
+      }
     }
   }
 }

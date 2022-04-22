@@ -8,6 +8,22 @@ using System.Threading.Tasks;
 
 namespace PowerApps.Samples {
   public class ScheduleAPIDataMigrationHelpers {
+    /*
+     https://erdippleprojops.api.crm.dynamics.com/api/data/v9.2.22032.150/msdyn_projects?$select=msdyn_description,msdyn_scheduledstart,msdyn_effortestimateatcompleteeac,msdyn_projectid,msdyn_projectmanager,msdyn_taskearlieststart,             statuscode,ownerid,msdyn_workhourtemplate,msdyn_duration,msdyn_salesorderid,msdyn_calendarid,msdyn_subject,msdyn_effortcompleted,             modifiedby,createdon,msdyn_finish,msdyn_customer,msdyn_effort,statecode,msdyn_contractlineproject,msdyn_effortremaining,msftce_sourceid,modifiedon,msdyn_schedulemode,msdyn_comments,createdby,msdyn_valuestatement
+&$expand=msdyn_msdyn_project_msdyn_projecttask_project($select=createdon,msdyn_requestedhours,msdyn_description,msdyn_iscritical,msdyn_effortcompleted,msdyn_parenttask,msdyn_duration,msdyn_start,msdyn_subject,msdyn_effortremaining,msdyn_scheduledend,msdyn_ismilestone,statecode,msdyn_effortestimateatcomplete,msdyn_effort,ownerid,modifiedon,      msdyn_priority,msdyn_scheduledstart,createdby,msdyn_projectbucket,modifiedby,msdyn_project,msdyn_scheduleddurationminutes,statuscode,msftce_sourceid,msdyn_finish),
+&$filter=Microsoft.Dynamics.CRM.In(PropertyName=@p1,PropertyValues=@p2)
+&@p1='msftce_sourceid'
+&@p2=["SAMPLE-MIGRATION","SRCPRJ-01","SRCPRJ-02","SRCPRJ-03","SRCPRJ-04","SRCPRJ-05","SRCPRJ-06","SRCPRJ-07","SRCPRJ-08","SRCPRJ-09","SRCPRJ-10","SRCPRJ-11","SRCPRJ-12","SRCPRJ-13","SRCPRJ-14","SRCPRJ-15","SRCPRJ-16","SRCPRJ-17","SRCPRJ-18","SRCPRJ-19","SRCPRJ-20","SRCPRJ-21","SRCPRJ-22","SRCPRJ-23","SRCPRJ-24","SRCPRJ-25","SRCPRJ-26","SRCPRJ-27","SRCPRJ-28","SRCPRJ-29","SRCPRJ-30","SRCPRJ-31","SRCPRJ-32","SRCPRJ-33","SRCPRJ-34","SRCPRJ-35","SRCPRJ-36","SRCPRJ-37","SRCPRJ-38","SRCPRJ-39","SRCPRJ-40","SRCPRJ-41","SRCPRJ-42","SRCPRJ-43","SRCPRJ-44","SRCPRJ-45","SRCPRJ-46","SRCPRJ-47","SRCPRJ-48","SRCPRJ-49","SRCPRJ-50"]
+    */
+
+    // Sample URL: https://erdippleprojops.api.crm.dynamics.com/api/data/v9.2/msdyn_projects?  // Append the following string to the url.
+    private static string existingProjectsWebApi = 
+      @"$select=msdyn_description,msdyn_scheduledstart,msdyn_effortestimateatcompleteeac,msdyn_projectid,msdyn_projectmanager,msdyn_taskearlieststart,statuscode,ownerid,msdyn_workhourtemplate,msdyn_duration,msdyn_salesorderid,msdyn_calendarid,msdyn_subject,msdyn_effortcompleted,modifiedby,createdon,msdyn_finish,msdyn_customer,msdyn_effort,statecode,msdyn_contractlineproject,msdyn_effortremaining,msftce_sourceid,modifiedon,msdyn_schedulemode,msdyn_comments,createdby,msdyn_valuestatement
+        &$expand=msdyn_msdyn_project_msdyn_projecttask_project($select=createdon,msdyn_requestedhours,msdyn_description,msdyn_iscritical,msdyn_effortcompleted,msdyn_parenttask,msdyn_duration,msdyn_start,msdyn_subject,msdyn_effortremaining,msdyn_scheduledend,msdyn_ismilestone,statecode,msdyn_effortestimateatcomplete,msdyn_effort,ownerid,modifiedon,msdyn_priority,msdyn_scheduledstart,createdby,msdyn_projectbucket,modifiedby,msdyn_project,msdyn_scheduleddurationminutes,statuscode,msftce_sourceid,msdyn_finish),
+        &$filter=Microsoft.Dynamics.CRM.In(PropertyName=@p1,PropertyValues=@p2)
+        &@p1='msftce_sourceid'
+        &@p2=[{SOUREIDVALUES}]";
+//Sample of source values: "SRCPRJ-01","SRCPRJ-02","SRCPRJ-03","SRCPRJ-04","SRCPRJ-05","SRCPRJ-06","SRCPRJ-07","SRCPRJ-08","SRCPRJ-09","SRCPRJ-10","SRCPRJ-11","SRCPRJ-12","SRCPRJ-13","SRCPRJ-14","SRCPRJ-15","SRCPRJ-16","SRCPRJ-17","SRCPRJ-18","SRCPRJ-19","SRCPRJ-20","SRCPRJ-21","SRCPRJ-22","SRCPRJ-23","SRCPRJ-24","SRCPRJ-25","SRCPRJ-26","SRCPRJ-27","SRCPRJ-28","SRCPRJ-29","SRCPRJ-30","SRCPRJ-31","SRCPRJ-32","SRCPRJ-33","SRCPRJ-34","SRCPRJ-35","SRCPRJ-36","SRCPRJ-37","SRCPRJ-38","SRCPRJ-39","SRCPRJ-40","SRCPRJ-41","SRCPRJ-42","SRCPRJ-43","SRCPRJ-44","SRCPRJ-45","SRCPRJ-46","SRCPRJ-47","SRCPRJ-48","SRCPRJ-49","SRCPRJ-50"
     
     public static string[] BookableResourceNames = {"Abraham McCormick", "Allison Dickson", "Ashley Chinn", "Bernadette Foley", "Bob Kozak", "Brady Hannon", "Cheri Castaneda", "Christal Robles", "Christie Dawson", "Clarence Desimone" };
     
@@ -26,6 +42,25 @@ namespace PowerApps.Samples {
       ConcurrentBag<ExistingProject> _existingProjects = new ConcurrentBag<ExistingProject>();
 
       // TODO: This is where we will implement the parallel processing to load existing projects.
+      // We are not using multithreading for this retrieve.   This type of lookup should really be done
+      // by getting the data from an external data store, preferably a datalake where you are using the Synapse Link for Dataverse.
+      // in this sample we are just using a simple process to RetrieveMultiple getting existing projects for the list of
+      // source projects.
+
+      int iRetrieveMultipleCounter = 0;  // the filter in the FetchXML will retrieve projects based on a list of source projects.   So only do this for 50 source projects at a time.
+      string sourceValues = "";
+      for (int i = 0; i < sourceProjects.Count; i++) {
+        sourceValues += $"{sourceProjects[i].SourceId},";
+        iRetrieveMultipleCounter++;
+
+        if (iRetrieveMultipleCounter == 50) {
+          // remove trailing comma
+          sourceValues = sourceValues.TrimEnd(',');
+          // create the Url for the webapi call to get records.
+          existingProjectsWebApi = existingProjectsWebApi.Replace("{SOUREIDVALUES}", sourceValues);
+
+        }
+      }
       return _existingProjects;
     }
 
