@@ -47,7 +47,11 @@ namespace PowerApps.Samples {
 
       using (CDSWebApiService svc = new CDSWebApiService(serviceConfig)) {
         // Now load up the existing projects
-        ConcurrentBag<ScheduleAPIDataMigrationHelpers.ExistingProject> _existingProjects = ScheduleAPIDataMigrationHelpers.GetExistingProjects(svc, sourceProjects);
+        // Not using parallel tasks for this load although we could
+        ConcurrentBag<JObject> _existingProjects = ScheduleAPIDataMigrationHelpers.GetExistingProjects(svc, sourceProjects);
+
+        // 1) Create projects using ScheduleAPI with parallel threads
+        int existingProjCount = _existingProjects.Count;
       }
     }
   }

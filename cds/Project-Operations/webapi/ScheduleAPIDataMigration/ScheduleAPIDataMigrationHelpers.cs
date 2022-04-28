@@ -38,14 +38,8 @@ namespace PowerApps.Samples {
       return _sourceProjects;
     }
 
-    public static ConcurrentBag<ExistingProject> GetExistingProjects(CDSWebApiService svc, List<SourceProject> sourceProjects) {
-      ConcurrentBag<ExistingProject> _existingProjects = new ConcurrentBag<ExistingProject>();
-
-      // TODO: This is where we will implement the parallel processing to load existing projects.
-      // We are not using multithreading for this retrieve.   This type of lookup should really be done
-      // by getting the data from an external data store, preferably a datalake where you are using the Synapse Link for Dataverse.
-      // in this sample we are just using a simple process to RetrieveMultiple getting existing projects for the list of
-      // source projects.
+    public static ConcurrentBag<JObject> GetExistingProjects(CDSWebApiService svc, List<SourceProject> sourceProjects) {
+      ConcurrentBag<JObject> _existingProjects = new ConcurrentBag<JObject>();
 
       int iRetrieveMultipleCounter = 0;  // the filter in the FetchXML will retrieve projects based on a list of source projects.   So only do this for 50 source projects at a time.
       string sourceValues = "";
@@ -53,37 +47,21 @@ namespace PowerApps.Samples {
         sourceValues += $"{sourceProjects[i].SourceId},";
         iRetrieveMultipleCounter++;
 
-        if (iRetrieveMultipleCounter == 50) {
+        if (iRetrieveMultipleCounter == 50 || i == sourceProjects.Count - 1) {
           // remove trailing comma
           sourceValues = sourceValues.TrimEnd(',');
           // create the Url for the webapi call to get records.
-          existingProjectsWebApi = existingProjectsWebApi.Replace("{SOUREIDVALUES}", sourceValues);
+          string webApiUrl = existingProjectsWebApi.Replace("{SOUREIDVALUES}", sourceValues);
+          // get the existing projects
+          JToken existingProjects = svc.Get($"msdyn_projects?{webApiUrl}");
+          foreach (JObject prj in existingProjects) {
+            _existingProjects.Add(prj);
+          }
 
+          iRetrieveMultipleCounter = 0;          
         }
       }
       return _existingProjects;
-    }
-
-    public class ExistingProject {
-      private ConcurrentBag<JObject> _projectTasks = new ConcurrentBag<JObject>();
-      
-      private ExistingProject() { }
-      public ExistingProject(CDSWebApiService svc, JObject existingProject) {
-        // TODO Add code to populate the properties
-
-        // Load the existing project tasks for this project.
-        LoadExistingProjectTasks(svc);
-      }
-
-      public string Name { get; set; }
-
-      public ConcurrentBag<JObject> ProjectTasks {
-        get { return _projectTasks; }        
-      }
-
-      private void LoadExistingProjectTasks(CDSWebApiService svc) {
-        // TODO Add 
-      }
     }
 
     public class SourceProject {
