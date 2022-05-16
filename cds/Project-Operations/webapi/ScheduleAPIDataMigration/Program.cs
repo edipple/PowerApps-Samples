@@ -10,6 +10,7 @@ namespace PowerApps.Samples {
   class Program {
     //Get configuration data from App.config connectionStrings
     static readonly string connectionString = ConfigurationManager.ConnectionStrings["Connect"].ConnectionString;
+
     static readonly ServiceConfig serviceConfig = new ServiceConfig(connectionString);
     //Controls the max degree of parallelism
     static readonly int maxDegreeOfParallelism = 10;
@@ -48,7 +49,7 @@ namespace PowerApps.Samples {
       using (CDSWebApiService svc = new CDSWebApiService(serviceConfig)) {
         // Now load up the existing projects
         // Not using parallel tasks for this load although we could
-        ConcurrentBag<JObject> _existingProjects = ScheduleAPIDataMigrationHelpers.GetExistingProjects(svc, sourceProjects);
+        ConcurrentBag<ScheduleAPIDataMigrationHelpers.ExistingTargetProject> _existingProjects = ScheduleAPIDataMigrationHelpers.GetExistingProjects(svc, sourceProjects);
 
         // 1) Create projects using ScheduleAPI with parallel threads
         int existingProjCount = _existingProjects.Count;
